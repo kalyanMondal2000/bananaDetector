@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Banana Detector</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            secondary: '#8B0000', // dark red
+          },
+          fontFamily: {
+            sans: ['"Segoe UI"', 'Roboto', 'sans-serif'],
+          },
+        }
+      }
+    }
+  </script>
+
+  <!-- TensorFlow + COCO-SSD -->
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.21.0/dist/tf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd@2.2.2/dist/coco-ssd.min.js"></script>
+</head>
+
+<body class="bg-gray-900 text-white font-sans min-h-screen flex items-center justify-center p-6">
+  <div class="bg-gray-800 rounded-2xl shadow-lg p-8 w-full max-w-md">
+    <h1 class="text-3xl font-bold mb-6 text-center text-secondary">Banana Detector 🍌</h1>
+
+    <input type="file" id="imageUpload" accept="image/*" class="hidden" />
+    <label for="imageUpload" class="cursor-pointer bg-secondary text-white px-6 py-3 rounded-md font-semibold shadow-md hover:bg-red-800 transition block text-center mb-4">
+      Upload Image
+    </label>
+
+    <img id="preview" class="hidden rounded-lg shadow-md mx-auto max-w-xs max-h-64 mb-4" />
+    
+    <div id="results" class="text-center text-lg font-medium mt-4"></div>
+    <div id="loading" class="hidden text-center mt-4 text-gray-400 text-sm">Loading model...</div>
+  </div>
+
+  <script>
+    const imageUpload = document.getElementById('imageUpload');
+    const preview = document.getElementById('preview');
+    const results = document.getElementById('results');
+    const loading = document.getElementById('loading');
+
+    let model;
+
+    cocoSsd.load().then(loadedModel => {
+      model = loadedModel;
+      loading.classList.add('hidden');
+      console.log('Model loaded!');
+    }).catch(err => {
+      console.error('Model failed to load:', err);
+      loading.textContent = "Failed to load model.";
+      loading.classList.remove('hidden');
+    });
+
+    imageUpload.addEventListener('change', event => {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = e => {
+        preview.src = e.target.result;
+        preview.classList.remove('hidden');
+        results.textContent = "Detecting...";
+        loading.classList.add('hidden');
+
+        preview.onload = () => {
+          model.detect(preview).then(predictions => {
+            const banana = predictions.find(p => p.class === 'banana');
+            if (banana) {
+              results.innerHTML = `✅ <span class="text-secondary font-semibold">Banana detected</span> with ${(banana.score * 100).toFixed(2)}% confidence.`;
+            } else {
+              results.innerHTML = `❌ <span class="text-gray-300">No banana detected.</span>`;
+            }
+          }).catch(err => {
+            results.innerHTML = `<span class="text-red-500">Prediction failed.</span>`;
+            console.error(err);
+          });
+        };
+      };
+      reader.readAsDataURL(file);
+    });
+
+    loading.classList.remove('hidden'); // Show loading until model is ready
+  </script>
+</body>
+</html>

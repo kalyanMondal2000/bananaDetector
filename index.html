@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Banana Detector</title>
 
-  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -13,7 +12,7 @@
       theme: {
         extend: {
           colors: {
-            secondary: '#8B0000', // dark red
+            secondary: '#8B0000',
           },
           fontFamily: {
             sans: ['"Segoe UI"', 'Roboto', 'sans-serif'],
@@ -23,7 +22,6 @@
     }
   </script>
 
-  <!-- TensorFlow + COCO-SSD -->
   <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.21.0/dist/tf.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd@2.2.2/dist/coco-ssd.min.js"></script>
 </head>
@@ -89,7 +87,7 @@
       reader.readAsDataURL(file);
     });
 
-    loading.classList.remove('hidden'); // Show loading until model is ready
+    loading.classList.remove('hidden');
   </script>
 </body>
 </html>
